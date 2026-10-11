@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Owner dashboard</title>
+<style>
+body{margin:0;padding:20px;background:#07060d;color:#fff;font:14px/1.4 system-ui,sans-serif}
+h1{font-size:1.5rem;background:linear-gradient(90deg,#fff,#a855f7,#ff4ecd);-webkit-background-clip:text;background-clip:text;color:transparent}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:16px 0}
+.k{padding:14px;border-radius:14px;background:#ffffff10;border:1px solid #ffffff22}.k b{display:block;font-size:1.8rem}
+table{width:100%;border-collapse:collapse;min-width:640px}td,th{padding:8px;text-align:left;border-bottom:1px solid #ffffff18}
+input,button{padding:10px 14px;border-radius:10px;border:1px solid #ffffff33;background:#ffffff12;color:#fff;font:inherit}
+.w{overflow-x:auto}.on{color:#4ade80}#cs{margin:8px 0 16px;color:#c9c3dd}
+</style></head><body>
+<h1>Owner dashboard</h1>
+<div id="lg"><input id="k" type="password" placeholder="Admin key"> <button id="b">Open</button> <span id="e"></span></div>
+<div id="d" hidden>
+ <div class="g"><div class="k"><b id="a1">0</b>Visitors</div><div class="k"><b id="a2" class="on">0</b>Live now</div><div class="k"><b id="a3">0</b>Started</div><div class="k"><b id="a4">0</b>Finished</div></div>
+ <div id="cs"></div>
+ <div class="w"><table><thead><tr><th>Name</th><th>Status</th><th>Answers</th><th>Card</th><th>From</th><th>Last seen</th></tr></thead><tbody id="t"></tbody></table></div>
+</div>
+<script>
+const $=s=>document.querySelector(s);let K=sessionStorage.getItem('ak')||'',T;
+const ago=m=>m<6e4?Math.floor(m/1e3)+'s ago':Math.floor(m/6e4)+'m ago';
+async function load(){
+ const r=await fetch('/.netlify/functions/stats',{headers:{'x-admin-key':K}});
+ if(!r.ok){sessionStorage.removeItem('ak');clearInterval(T);$('#d').hidden=true;$('#lg').hidden=false;$('#e').textContent=r.status==429?'Too many tries, wait a minute':'Wrong key';return}
+ const {now,rows}=await r.json();sessionStorage.setItem('ak',K);$('#lg').hidden=true;$('#d').hidden=false;
+ $('#a1').textContent=rows.length;$('#a2').textContent=rows.filter(x=>now-x.last<6e4).length;
+ $('#a3').textContent=rows.filter(x=>x.name).length;$('#a4').textContent=rows.filter(x=>x.card).length;
+ const c={};rows.forEach(x=>{if(x.card)c[x.card]=(c[x.card]||0)+1});
+ $('#cs').textContent=Object.entries(c).sort((a,b)=>b[1]-a[1]).map(e=>e[0]+': '+e[1]).join('  |  ');
+ const tb=$('#t');tb.innerHTML='';
+ rows.forEach(x=>{const tr=tb.insertRow();
+  [x.name||'-',x.card?'Finished':x.answers.length?'Q'+x.answers.length+'/10':'Just opened',x.answers.map(a=>a.q+a.opt).join(' ')||'-',x.card||'-',(x.country||'?')+' / '+x.device,ago(now-x.last)].forEach(v=>{tr.insertCell().textContent=v})});
+}
+function go(){K=$('#k').value||K;load();clearInterval(T);T=setInterval(load,5000)}
+$('#b').onclick=go;$('#k').onkeydown=e=>{if(e.key==='Enter')go()};if(K)go();
+</script></body></html>
+

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Which College Character Are You?</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--p:#a855f7;--k:#ff4ecd;--bg:#07060d}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);color:#fff;font-family:Sora,system-ui,sans-serif;overflow:hidden}
+canvas{position:fixed;inset:0;z-index:0}
+.screen{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;transition:opacity .6s,transform .9s cubic-bezier(.5,0,.2,1)}
+.screen.hide{opacity:0;pointer-events:none;transform:scale(1.6)}
+.screen.off{display:none}
+h1{font-size:clamp(2.4rem,9vw,5.2rem);font-weight:800;line-height:1.05;max-width:900px;background:linear-gradient(90deg,#fff,var(--p),var(--k));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{margin:18px 0 36px;color:#c9c3dd;font-size:clamp(1rem,3vw,1.25rem)}
+#start{font:800 1.15rem Sora,system-ui,sans-serif;color:#fff;border:0;cursor:pointer;padding:18px 44px;border-radius:999px;background:linear-gradient(90deg,var(--p),var(--k));box-shadow:0 0 30px #a855f788,0 0 80px #ff4ecd55;animation:glow 2.4s ease-in-out infinite;transition:transform .2s}
+#start:hover{transform:scale(1.08)}
+#start:active{transform:scale(.95)}
+#start:focus-visible,.opt:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@keyframes glow{50%{box-shadow:0 0 50px #a855f7cc,0 0 120px #ff4ecd88}}
+#flash{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:0;background:radial-gradient(circle,#fff,var(--p) 45%,transparent 75%)}
+#flash.go{animation:fl 1.4s ease-in}
+@keyframes fl{0%,60%{opacity:0}85%{opacity:.9}100%{opacity:0}}
+#quiz{perspective:1000px}
+.top{width:100%;max-width:560px;margin-bottom:14px;text-align:left;color:#c9c3dd;font-size:.9rem}
+.track{height:6px;border-radius:9px;background:#ffffff1c;margin-top:8px;overflow:hidden}
+#bar{height:100%;width:0;background:linear-gradient(90deg,var(--p),var(--k));transition:width .5s}
+#card{width:100%;max-width:560px;padding:28px;border-radius:26px;text-align:left;background:#ffffff0f;border:1px solid #ffffff22;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 20px 80px #a855f733}
+#card.in{animation:cardin .6s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes cardin{from{opacity:0;transform:translateY(50px) rotateX(-25deg) scale(.92)}to{opacity:1;transform:none}}
+#q{font-size:clamp(1.25rem,4.5vw,1.6rem);font-weight:600;line-height:1.3;margin-bottom:20px}
+.opt{display:flex;gap:14px;align-items:center;width:100%;text-align:left;margin-top:10px;padding:15px 16px;border-radius:16px;color:#fff;font:400 1rem Sora,system-ui,sans-serif;cursor:pointer;background:#ffffff0d;border:1px solid #ffffff1f;transition:transform .2s,background .2s,box-shadow .2s}
+.opt b{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:.85rem;background:#ffffff1c}
+.opt:hover{transform:translateX(6px);background:#a855f733;box-shadow:0 0 24px #a855f755}
+.opt.sel{background:linear-gradient(90deg,var(--p),var(--k));border-color:transparent;transform:scale(1.03);box-shadow:0 0 40px #ff4ecd99}
+.dots span{animation:bl 1.2s infinite}.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes bl{50%{opacity:.15}}
+h2{font-size:clamp(1.6rem,6vw,2.6rem);font-weight:800}
+.ghost{margin-top:28px;padding:14px 30px;border-radius:999px;border:1px solid #ffffff44;background:none;color:#fff;font:600 1rem Sora,system-ui,sans-serif;cursor:pointer}
+#snd{position:fixed;top:16px;right:16px;z-index:5;width:46px;height:46px;border-radius:50%;border:1px solid #ffffff33;background:#ffffff14;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:1.2rem;cursor:pointer}
+.rc{width:100%;max-width:460px;padding:34px 26px;border-radius:28px;background:#ffffff12;border:1px solid #ffffff2a;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 0 90px #ff4ecd44;animation:cardin .8s cubic-bezier(.2,.9,.3,1.2)}
+#rEmo{font-size:4rem}
+#rName{margin:8px 0 10px;font-size:clamp(1.7rem,7vw,2.4rem);font-weight:800;background:linear-gradient(90deg,#fff,var(--p),var(--k));-webkit-background-clip:text;background-clip:text;color:transparent}
+#rLine{color:#e6e0f7;margin-bottom:18px}
+#rTr{list-style:none;padding:0;text-align:left}
+#rTr li{padding:10px 14px;margin-top:8px;border-radius:12px;background:#ffffff0f;border:1px solid #ffffff1a}
+#cf{z-index:4;pointer-events:none}
+#res{overflow-y:auto;justify-content:safe center}
+.won{font-size:1.15rem;font-weight:800;color:#ffe27a;margin-bottom:16px}
+.you{color:#c9c3dd;font-size:.95rem}
+.rc{border-color:#ffe27a88;box-shadow:0 0 90px #ffcc4466,0 0 40px #ff4ecd55}
+#rEmo{animation:pop 1s ease-out}
+@keyframes pop{0%{transform:scale(0) rotate(-40deg)}60%{transform:scale(1.4) rotate(10deg)}100%{transform:none}}
+.share{margin-top:22px;font:800 1.1rem Sora,system-ui,sans-serif;color:#fff;border:0;border-radius:999px;padding:16px 36px;cursor:pointer;background:linear-gradient(90deg,var(--p),var(--k));box-shadow:0 0 30px #a855f788}
+.ghost{margin-top:14px}
+@media(prefers-reduced-motion:reduce){#start{animation:none}}
+#nameIn{width:100%;max-width:360px;padding:16px 20px;border-radius:16px;border:1px solid #ffffff33;background:#ffffff12;color:#fff;font:600 1.1rem Sora,system-ui,sans-serif;text-align:center;outline:0}
+#nameIn:focus{border-color:var(--p);box-shadow:0 0 30px #a855f766}
+.err{min-height:1.4em;margin-top:10px;color:#ffb4d8;font-size:.9rem}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="flash"></div>
+<button id="snd" aria-label="Toggle sound">🔊</button>
+
+<section id="home" class="screen">
+  <h1>Which college character are you?</h1>
+  <p class="sub">10 questions. 1 truth. No lying.</p>
+  <button id="start">Start quiz</button>
+</section>
+
+<section id="nm" class="screen off">
+  <h2>Your name?</h2>
+  <p class="sub">So your card has your name on it 😎</p>
+  <input id="nameIn" maxlength="20" autocomplete="off" placeholder="Type your name">
+  <p id="nmErr" class="err"></p>
+  <button id="go" class="share">Let's go 🚀</button>
+</section>
+
+<section id="quiz" class="screen off">
+  <div class="top"><span id="num"></span><div class="track"><div id="bar"></div></div></div>
+  <div id="card"><div id="q"></div><div id="opts"></div></div>
+</section>
+
+<section id="load" class="screen off">
+  <h2>Reading your vibe<span class="dots"><span>.</span><span>.</span><span>.</span></span></h2>
+</section>
+
+<section id="res" class="screen off">
+  <p class="won">🎉 Character unlocked 🎉</p>
+  <div class="rc">
+    <div id="rEmo"></div>
+    <p class="you">You are</p>
+    <div id="rName"></div>
+    <p id="rLine"></p>
+    <ul id="rTr"></ul>
+  </div>
+  <button id="shareBtn" class="share">Share my card 🚀</button>
+  <button class="ghost" onclick="location.reload()">Retake quiz</button>
+</section>
+<canvas id="cf"></canvas>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ===== YOUR QUESTIONS: edit the text before the | . The letter after | is the character it points to ===== */
+const QS=[
+ {q:"It's 11:00 AM and your lecture starts at 11:30. Where are you?",o:["Already seated, front rows|T","On the way, almost there|W","In the canteen, obv|P","Ghar pe hi hu, college kaun jaye 😴|L"]},
+ {q:"The teacher announces a surprise test. Your first reaction?",o:["Finally, something to test my prep|T","Lag gaye guru 💀|N","Bhagwan bharose|B","Hum log nahi lete bhai, tension-vension 😎|L"]},
+ {q:"Assignment is due tomorrow. When do you start?",o:["It's done bro 😎|G","Tonight at 11 PM|W","Jatt dont care|B","I'll ask my friend for help|P"]},
+ {q:"Pick your canteen order.",o:["just chilling in the canteen|P","\"Chal sutta pee ke aate hain\"|L","Whatever my friends are ordering|P","just for the \"Tea\" iykyk|N"]},
+ {q:"Your phone's lock screen has:",o:["Anime ka 14 🍥|N","narcissist hu|M","god ka banda hu|B","kuch bhi chatar-patar|B"]},
+ {q:"A college fest is coming. You:",o:["Volunteer for the organizing team|T","only for free food|L","Post five stories before even entering|M","\"Bhaad mein gaya college\"|W"]},
+ {q:"It's 2 AM. What are you doing?",o:["Sleeping (a rare, healthy human)|G","Doom-scrolling reels|M","Overthinking something from 3 years ago|N","Barbaad ho raha hu bhai 😭|W"]},
+ {q:"Your friends would describe you as:",o:["the supportive one|G","\"The funny one\"|L","\"The mysterious one\"|N","grp ka chatpata banda|P"]},
+ {q:"You get a free period. You:",o:["Revise or read ahead|T","Nap on the last bench|L","challo gym khana|G","Seedha ghar, college mein bahut ho gaya 🏠|W"]},
+ {q:"What superpower do you want? (think twice bro)",o:["Stop time ⏸️|W","Invisibility 🫥|L","Mind reading 🧠|N","Teleportation (bye bye local train) 🚆|M"]}
+];
+
+/* ===== 3D BACKGROUND (three.js) ===== */
+const $=s=>document.querySelector(s);
+const R=new THREE.WebGLRenderer({canvas:$('#bg'),antialias:true});
+R.setPixelRatio(Math.min(devicePixelRatio,2));
+const S=new THREE.Scene();
+const C=new THREE.PerspectiveCamera(70,1,.1,300);C.position.z=30;
+const N=2500,pos=new Float32Array(N*3);
+for(let n=0;n<N;n++){pos[n*3]=(Math.random()-.5)*160;pos[n*3+1]=(Math.random()-.5)*160;pos[n*3+2]=30-Math.random()*280}
+const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.BufferAttribute(pos,3));
+const pm=new THREE.PointsMaterial({size:.9,color:0xc084fc});
+S.add(new THREE.Points(pg,pm));
+const knot=new THREE.Mesh(new THREE.TorusKnotGeometry(7,1.6,160,20),new THREE.MeshBasicMaterial({color:0xa855f7,wireframe:true,transparent:true,opacity:.5}));
+knot.position.z=-5;S.add(knot);
+const ico=new THREE.Mesh(new THREE.IcosahedronGeometry(3,1),new THREE.MeshBasicMaterial({color:0xff4ecd,wireframe:true,transparent:true,opacity:.7}));
+ico.position.z=-5;S.add(ico);
+function rs(){R.setSize(innerWidth,innerHeight);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix()}
+addEventListener('resize',rs);rs();
+let mx=0,my=0;addEventListener('pointermove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5});
+
+let speed=.15,speedT=.15,pulse=0,hue=.75;
+function tint(h){pm.color.setHSL(h,.9,.7);knot.material.color.setHSL(h,.9,.6);ico.material.color.setHSL((h+.15)%1,.9,.65)}
+(function tick(){
+  requestAnimationFrame(tick);
+  speed+=(speedT-speed)*.06;
+  const a=pg.attributes.position.array;
+  for(let n=0;n<N;n++){a[n*3+2]+=speed*3;if(a[n*3+2]>30)a[n*3+2]-=280}
+  pg.attributes.position.needsUpdate=true;
+  knot.rotation.x+=.003+speed*.02;knot.rotation.y+=.004+speed*.02;
+  ico.rotation.y-=.01;ico.rotation.x+=.006;
+  pulse*=.9;const s=1+pulse;knot.scale.setScalar(s);ico.scale.setScalar(s);
+  C.fov=70+speed*9;C.updateProjectionMatrix();
+  C.position.x+=(mx*8-C.position.x)*.05;C.position.y+=(-my*6-C.position.y)*.05;
+  C.lookAt(0,0,-20);
+  R.render(S,C);
+})();
+
+/* ===== SOUND (made in the browser, no files needed) ===== */
+let AC,master,mute=false,amb;
+function snd(){
+  if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=.3;master.connect(AC.destination)}
+  if(AC.state==='suspended')AC.resume();
+}
+function tone(f,t,d,type,v){
+  if(mute||!AC)return;const n=AC.currentTime+t,o=AC.createOscillator(),g=AC.createGain();
+  o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(0,n);g.gain.linearRampToValueAtTime(v,n+.03);g.gain.exponentialRampToValueAtTime(.001,n+d);
+  o.connect(g);g.connect(master);o.start(n);o.stop(n+d+.05);
+}
+function whoosh(){
+  if(mute||!AC)return;const n=AC.currentTime,b=AC.createBuffer(1,AC.sampleRate*1.4,AC.sampleRate),d=b.getChannelData(0);
+  for(let k=0;k<d.length;k++)d[k]=Math.random()*2-1;
+  const s=AC.createBufferSource();s.buffer=b;
+  const f=AC.createBiquadFilter();f.type='bandpass';f.Q.value=1.5;
+  f.frequency.setValueAtTime(200,n);f.frequency.exponentialRampToValueAtTime(4000,n+1.2);
+  const g=AC.createGain();g.gain.setValueAtTime(.001,n);g.gain.linearRampToValueAtTime(.14,n+1);g.gain.exponentialRampToValueAtTime(.001,n+1.4);
+  s.connect(f);f.connect(g);g.connect(master);s.start(n);
+}
+const PENT=[523,587,659,784,880,1047];
+const PADS=[[261,329,392,493],[220,261,329,392],[174,220,261,329],[196,246,293,392]];
+let pi=0;
+function chill(){
+  if(amb)return;
+  const play=()=>{if(!mute&&AC)PADS[pi%4].forEach((f,k)=>tone(f,k*.1,3.6,'sine',.02));pi++};
+  play();amb=setInterval(play,3800);
+}
+function chime(k){tone(PENT[(i+k)%6]/2,0,.5,'sine',.08);tone(PENT[(i+k)%6],.04,.35,'sine',.03)}
+function win(){[523,659,784,1047,1319].forEach((f,k)=>tone(f,k*.11,.6,'sine',.07))}
+$('#snd').onclick=()=>{snd();mute=!mute;$('#snd').textContent=mute?'🔇':'🔊'};
+
+/* ===== RESULT CHARACTERS: edit names, roasts, traits here (keep traits short) ===== */
+const CHARS={
+ T:{c:"#38bdf8",e:"🎯",n:"The Silent Topper",r:"Says \"kuch nahi padha\" and scores 95.",t:["Calm when everyone panics","Quietly the most competitive","Everyone's notes dealer"]},
+ W:{c:"#fb923c",e:"⚡",n:"The Deadline Warrior",r:"Starts at 2 AM, still submits first.",t:["Works best with zero time left","Runs on chai and panic","Somehow it always works out"]},
+ P:{c:"#34d399",e:"🗣️",n:"The Canteen Politician",r:"Knows everyone and every gossip.",t:["A friend in every department","Fest news reaches you first","Attendance low, network high"]},
+ L:{c:"#a3e635",e:"😎",n:"The Last-Bench Legend",r:"Attendance 60%, vibes 100%.",t:["Zero tension, full chill","Has an excuse for every lecture","Somehow still passes"]},
+ N:{c:"#818cf8",e:"🌙",n:"The Night Owl Overthinker",r:"Deep thoughts at 3 AM, asleep at the 11:30 lecture.",t:["A plan for life, none for tomorrow","Replays old chats on loop","Smarter than they let on"]},
+ M:{c:"#ff4ecd",e:"✨",n:"The Main Character",r:"Fests, reels, clubs, always in the photo.",t:["Every event starts when you enter","Camera roll full of memories","Your vibe sets the group mood"]},
+ G:{c:"#ef4444",e:"💪",n:"The Gym Rat Gigachad",r:"Skips lectures, never skips leg day.",t:["Protein shake lives in your bag","Motivates everyone, asked or not","Counts canteen calories like a pro"]},
+ B:{c:"#fbbf24",e:"🙏",n:"The Bhagwan Bharose Banda",r:"Zero preparation, full faith, and somehow it works.",t:["Exam hall mein sirf prayer ka sahara","Jugaad is your middle name","Luck always shows up for you"]}
+};
+let cur;
+function showResult(){
+  const c={};ans.forEach(k=>c[k]=(c[k]||0)+1);
+  const m=Math.max(...Object.values(c)),tied=Object.keys(c).filter(k=>c[k]==m);
+  const top=[...ans].reverse().find(k=>tied.includes(k)),r=cur=CHARS[top];
+  $('#rEmo').textContent=r.e;$('#rName').textContent=r.n;$('#rLine').textContent=r.r;
+  $('.you').textContent=uname+', you are';const rc=$('.rc');rc.style.borderColor=r.c+'99';rc.style.boxShadow='0 0 90px '+r.c+'66,0 0 40px '+r.c+'44';track('result',{card:r.n,name:uname});
+  const ul=$('#rTr');ul.innerHTML='';r.t.forEach(x=>{const li=document.createElement('li');li.textContent=x;ul.appendChild(li)});
+  confetti();setTimeout(confetti,500);
+}
+function confetti(){
+  const cv=$('#cf'),x=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;
+  const cols=['#a855f7','#ff4ecd','#facc15','#22d3ee','#ffffff'];
+  const P=Array.from({length:150},()=>({x:innerWidth/2,y:innerHeight*.45,vx:(Math.random()-.5)*18,vy:-Math.random()*18-4,s:6+Math.random()*7,c:cols[Math.random()*5|0],r:Math.random()*6,vr:(Math.random()-.5)*.4}));
+  let f=0;(function go(){
+    x.clearRect(0,0,cv.width,cv.height);
+    P.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});
+    if(++f<220)requestAnimationFrame(go);else x.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+/* ===== SHARE: draws the card as an image and sends it ===== */
+function wrap(x,t,cx,y,w,lh){let l='';t.split(' ').forEach(wd=>{const n=l?l+' '+wd:wd;if(x.measureText(n).width>w&&l){x.fillText(l,cx,y);y+=lh;l=wd}else l=n});x.fillText(l,cx,y);return y}
+function cardImg(r){
+  const c=document.createElement('canvas');c.width=1080;c.height=1350;const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,1080,1350);g.addColorStop(0,'#14081f');g.addColorStop(.55,'#3b0f5c');g.addColorStop(1,'#8a1473');
+  x.fillStyle=g;x.fillRect(0,0,1080,1350);x.textAlign='center';x.fillStyle='#fff';
+  x.font='600 40px Sora,system-ui,sans-serif';x.fillText('Which college character are you?',540,120);
+  x.font='250px "Apple Color Emoji","Segoe UI Emoji",system-ui';x.fillText(r.e,540,470);
+  let fs=88;do{fs-=2;x.font='800 '+fs+'px Sora,system-ui,sans-serif'}while(x.measureText(r.n).width>940);
+  x.fillText(r.n,540,640);
+  x.font='400 44px Sora,system-ui,sans-serif';x.fillStyle='#e6e0f7';
+  const y=wrap(x,r.r,540,730,860,60);
+  r.t.forEach((t,k)=>{x.fillStyle='#ffffff22';x.beginPath();(x.roundRect||x.rect).call(x,110,y+50+k*110,860,84,24);x.fill();x.fillStyle='#fff';x.font='400 36px Sora,system-ui,sans-serif';x.fillText(t,540,y+105+k*110)});
+  x.fillStyle='#ffe27a';x.font='800 40px Sora,system-ui,sans-serif';x.fillText('Find yours: '+location.host,540,1285);
+  return c;
+}
+function share(){
+  const r=cur,txt='I got '+r.n+' '+r.e+'! Which college character are you? '+location.href,btn=$('#shareBtn');
+  cardImg(r).toBlob(async b=>{
+    const f=new File([b],'my-college-card.png',{type:'image/png'});
+    try{
+      if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],text:txt});return}
+      if(navigator.share){await navigator.share({text:txt,url:location.href});return}
+    }catch(e){if(e.name==='AbortError')return}
+    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='my-college-card.png';a.click();
+    try{await navigator.clipboard.writeText(txt)}catch(e){}
+    btn.textContent='Card saved + link copied. Post it! 🚀';setTimeout(()=>btn.textContent='Share my card 🚀',3000);
+  });
+}
+$('#shareBtn').onclick=share;
+
+/* ===== TRACKING: sends events to your Netlify function (no secrets here) ===== */
+const SID=crypto.randomUUID?crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(36).slice(2);
+function track(t,d){try{fetch('/.netlify/functions/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sid:SID,type:t,data:d||{}}),keepalive:true}).catch(()=>{})}catch(e){}}
+track('visit');
+
+/* ===== QUIZ LOGIC ===== */
+let i=0,lock=false;const ans=[];
+
+$('#start').onclick=()=>{
+  snd();whoosh();chill();
+  $('#home').classList.add('hide');
+  speedT=4;pulse=.6;$('#flash').classList.add('go');
+  setTimeout(()=>$('#home').classList.add('off'),900);
+  setTimeout(()=>{speedT=.4;$('#nm').classList.remove('off');$('#nameIn').focus()},1300);
+};
+
+let uname='';
+function startQ(){
+  const v=$('#nameIn').value.trim();
+  if(!/^[\p{L}\p{N} .'-]{1,20}$/u.test(v)){$('#nmErr').textContent='1-20 letters or numbers only 🙂';return}
+  uname=v;track('start',{name:uname});
+  $('#nm').classList.add('off');$('#quiz').classList.remove('off');render();
+}
+$('#go').onclick=startQ;$('#nameIn').onkeydown=e=>{if(e.key==='Enter')startQ()};
+
+function render(){
+  const q=QS[i];
+  $('#bar').style.width=(i/QS.length*100)+'%';
+  $('#num').textContent='Question '+(i+1)+' of '+QS.length;
+  $('#q').textContent=q.q;
+  const box=$('#opts');box.innerHTML='';
+  q.o.forEach((t,k)=>{
+    const b=document.createElement('button');b.className='opt';
+    const l=document.createElement('b');l.textContent='ABCD'[k];
+    b.append(l,t.split("|")[0]);b.onclick=()=>pick(k,b);box.appendChild(b);
+  });
+  const c=$('#card');c.classList.remove('in');void c.offsetWidth;c.classList.add('in');
+}
+
+function pick(k,b){
+  if(lock)return;lock=true;
+  b.classList.add('sel');track('answer',{q:i+1,opt:'ABCD'[k]});ans.push(QS[i].o[k].split("|")[1]);chime(k);
+  pulse=.8;hue=(hue+.09)%1;tint(hue);speed=1.5;
+  setTimeout(()=>{i++;lock=false;i<QS.length?render():finish()},450);
+}
+
+function finish(){
+  $('#bar').style.width='100%';
+  $('#quiz').classList.add('hide');$('#load').classList.remove('off');speedT=2;
+  setTimeout(()=>{
+    $('#quiz').classList.add('off');$('#load').classList.add('off');
+    showResult();win();
+    $('#res').classList.remove('off');speedT=.15;
+  },3000);
+}
+</script>
+</body>
+</html>
